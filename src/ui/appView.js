@@ -14,6 +14,18 @@ function esc(value) {
   );
 }
 
+
+function questionNumber(question, fallback) {
+  const match = String(question?.id ?? "").match(/^q(\d+)$/i);
+  return match ? Number(match[1]) : fallback;
+}
+
+function finalQuestionNumber(questions) {
+  return Math.max(
+    ...questions.map((question, index) => questionNumber(question, index + 1)),
+  );
+}
+
 function renderQuestionBody(question) {
   let html = `<p class="question-prompt">${esc(question.prompt)}</p>`;
 
@@ -140,6 +152,11 @@ export function renderApp(root, model) {
   } = model;
 
   const q = questions[questionIndex];
+  const qNumber = questionNumber(q, questionIndex + 1);
+  const lastQuestionNumber = finalQuestionNumber(questions);
+  const topicClass = String(q.topic ?? "").startsWith("CHALLENGE")
+    ? " challenge"
+    : "";
 
   root.innerHTML = `
     <header class="app-header">
@@ -185,7 +202,7 @@ export function renderApp(root, model) {
             <span class="eyebrow">Questions</span>
             <h1>${esc(q.title)}</h1>
           </div>
-          <div class="question-count">Question ${questionIndex + 1} of ${questions.length}</div>
+          <div class="question-count">Question ${qNumber} of ${lastQuestionNumber}</div>
         </div>
 
         <div class="pagination" aria-label="Question pagination">
@@ -196,15 +213,15 @@ export function renderApp(root, model) {
               data-question="${idx}"
               class="${idx === questionIndex ? "current" : ""}"
               title="${esc(item.title)}"
-              aria-label="Question ${idx + 1}: ${esc(item.title)}"
-            >${idx + 1}</button>
+              aria-label="Question ${questionNumber(item, idx + 1)}: ${esc(item.title)}"
+            >${questionNumber(item, idx + 1)}</button>
           `,
             )
             .join("")}
         </div>
 
         <div class="question-content">
-          <div class="question-topic">${esc(q.topic)}</div>
+          <div class="question-topic${topicClass}">${esc(q.topic)}</div>
           ${renderQuestionBody(q)}
 
        <details class="hint">

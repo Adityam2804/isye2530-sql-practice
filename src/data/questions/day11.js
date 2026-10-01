@@ -1,0 +1,223 @@
+const shared = {
+  humanitarian: {
+    locationTable: "Camps",
+    locationId: "camp_id",
+    locationName: "name",
+    region: "region",
+    capacity: "capacity",
+    itemTable: "Items",
+    itemName: "name",
+    transactionTable: "Shipments",
+    transactionId: "shipment_id",
+    amount: "qty",
+    date: "ship_date",
+    status: "status",
+    capacityThreshold: 900,
+    amountThreshold: 200,
+    rangeLow: 100,
+    rangeHigh: 200,
+    itemPattern: "%Kits",
+    locationPattern: "_ill%",
+    completedStatus: "delivered",
+    statusA: "planned",
+    statusB: "delayed",
+    boundaryDate: "2026-09-08",
+    amountLabel: "quantity",
+    locationLabel: "camp",
+  },
+
+  supply: {
+    locationTable: "Warehouses",
+    locationId: "warehouse_id",
+    locationName: "name",
+    region: "region",
+    capacity: "capacity",
+    itemTable: "Products",
+    itemName: "name",
+    transactionTable: "Shipments",
+    transactionId: "shipment_id",
+    amount: "qty",
+    date: "ship_date",
+    status: "status",
+    capacityThreshold: 900,
+    amountThreshold: 200,
+    rangeLow: 100,
+    rangeHigh: 200,
+    itemPattern: "%ing%",
+    locationPattern: "_roy%",
+    completedStatus: "delivered",
+    statusA: "planned",
+    statusB: "delayed",
+    boundaryDate: "2026-09-08",
+    amountLabel: "quantity",
+    locationLabel: "warehouse",
+  },
+
+  healthcare: {
+    locationTable: "Facilities",
+    locationId: "facility_id",
+    locationName: "name",
+    region: "region",
+    capacity: "capacity",
+    itemTable: "Services",
+    itemName: "name",
+    transactionTable: "Visits",
+    transactionId: "visit_id",
+    amount: "patient_count",
+    date: "visit_date",
+    status: "status",
+    capacityThreshold: 90,
+    amountThreshold: 20,
+    rangeLow: 10,
+    rangeHigh: 20,
+    itemPattern: "%Health%",
+    locationPattern: "_ill%",
+    completedStatus: "completed",
+    statusA: "planned",
+    statusB: "delayed",
+    boundaryDate: "2026-09-08",
+    amountLabel: "patient count",
+    locationLabel: "facility",
+  },
+};
+
+export function buildDay11Questions(domainKey) {
+  const d = shared[domainKey];
+
+  return [
+    {
+      id: "q16",
+      title: "Filter Rows and Choose Columns",
+      topic: "SELECT · FROM · WHERE",
+      prompt: `Return only ${d.locationName} and ${d.region} from ${d.locationTable} where ${d.capacity} is greater than ${d.capacityThreshold}.`,
+      starterSql: `-- Question 16: Filter rows and choose columns\n\n`,
+      solutionSql: `SELECT ${d.locationName}, ${d.region}\nFROM ${d.locationTable}\nWHERE ${d.capacity} > ${d.capacityThreshold};`,
+    },
+
+    {
+      id: "q17",
+      title: "Return Unique Values",
+      topic: "DISTINCT",
+      prompt: `List the distinct ${d.region} values represented in ${d.locationTable}, so each region appears only once.`,
+      starterSql: `-- Question 17: Return unique regions\n\n`,
+      solutionSql: `SELECT DISTINCT ${d.region}\nFROM ${d.locationTable};`,
+    },
+
+    {
+      id: "q18",
+      title: "Combine Two Conditions",
+      topic: "AND",
+      prompt: `Find rows in ${d.transactionTable} where ${d.status} is '${d.completedStatus}' AND ${d.amount} is greater than ${d.amountThreshold}.`,
+      starterSql: `-- Question 18: Both conditions must be true\n\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.status} = '${d.completedStatus}'\n  AND ${d.amount} > ${d.amountThreshold};`,
+    },
+
+    {
+      id: "q19",
+      title: "Broaden and Reverse a Condition",
+      topic: "OR · NOT",
+      prompt: `First find rows in ${d.transactionTable} whose ${d.status} is '${d.statusA}' OR '${d.statusB}'. Then write a second query using NOT to return rows whose status is not '${d.completedStatus}'.`,
+      starterSql: `-- Question 19: OR, then NOT\n\n-- Part A: OR\n\n\n-- Part B: NOT\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.status} = '${d.statusA}'\n   OR ${d.status} = '${d.statusB}';\n\nSELECT *\nFROM ${d.transactionTable}\nWHERE NOT ${d.status} = '${d.completedStatus}';`,
+    },
+
+    {
+      id: "q20",
+      title: "Replace Repeated OR Conditions",
+      topic: "IN",
+      prompt: `Rewrite the '${d.statusA}' OR '${d.statusB}' status filter using IN.`,
+      starterSql: `-- Question 20: Use IN instead of repeated OR\n\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.status} IN ('${d.statusA}', '${d.statusB}');`,
+    },
+
+    {
+      id: "q21",
+      title: "Filter an Inclusive Range",
+      topic: "BETWEEN",
+      prompt: `Find rows in ${d.transactionTable} where ${d.amount} is between ${d.rangeLow} and ${d.rangeHigh}, inclusive.`,
+      starterSql: `-- Question 21: BETWEEN includes both endpoints\n\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.amount} BETWEEN ${d.rangeLow} AND ${d.rangeHigh};`,
+    },
+
+    {
+      id: "q22",
+      title: "Search Text with a Pattern",
+      topic: "LIKE",
+      prompt: `Use LIKE twice: first find names in ${d.itemTable} matching '${d.itemPattern}', then find names in ${d.locationTable} matching '${d.locationPattern}'.`,
+      starterSql: `-- Question 22: Pattern matching with % and _\n\n-- Part A: item/service/product name\n\n\n-- Part B: location name\n`,
+      solutionSql: `SELECT ${d.itemName}\nFROM ${d.itemTable}\nWHERE ${d.itemName} LIKE '${d.itemPattern}';\n\nSELECT ${d.locationName}\nFROM ${d.locationTable}\nWHERE ${d.locationName} LIKE '${d.locationPattern}';`,
+    },
+
+    {
+      id: "q23",
+      title: "Compute a New Result Column",
+      topic: "EXPRESSION · AS",
+      prompt: `For every row in ${d.locationTable}, show ${d.locationName}, ${d.capacity}, and a computed planning target equal to 80% of capacity. Name the computed column target.`,
+      starterSql: `-- Question 23: Compute 80% of capacity and name it target\n\n`,
+      solutionSql: `SELECT ${d.locationName},\n       ${d.capacity},\n       ${d.capacity} * 0.8 AS target\nFROM ${d.locationTable};`,
+    },
+
+    {
+      id: "q24",
+      title: "Find the Top Records",
+      topic: "ORDER BY · LIMIT",
+      prompt: `Return the three largest ${d.locationTable} rows by ${d.capacity}. Show ${d.locationName} and ${d.capacity}, largest first.`,
+      starterSql: `-- Question 24: Sort largest first, then keep only three rows\n\n`,
+      solutionSql: `SELECT ${d.locationName}, ${d.capacity}\nFROM ${d.locationTable}\nORDER BY ${d.capacity} DESC\nLIMIT 3;`,
+    },
+
+    {
+      id: "q25",
+      title: "Try = NULL and Observe the Result",
+      topic: "NULL TRAP",
+      prompt: `Try to find rows in ${d.transactionTable} with no recorded ${d.date} by writing ${d.date} = NULL. Run it and observe the result.`,
+      starterSql: `-- Question 25: This is intentionally the NULL trap\n\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} = NULL;`,
+    },
+
+    {
+      id: "q26",
+      title: "Find Missing and Recorded Values Correctly",
+      topic: "IS NULL · IS NOT NULL",
+      prompt: `Use IS NULL to find rows in ${d.transactionTable} with no recorded ${d.date}. Then use IS NOT NULL to find rows where the date is recorded.`,
+      starterSql: `-- Question 26: Test NULL correctly\n\n-- Missing dates\n\n\n-- Recorded dates\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} IS NULL;\n\nSELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} IS NOT NULL;`,
+    },
+
+    {
+      id: "q27",
+      title: "Display a Friendly Value for Missing Data",
+      topic: "COALESCE",
+      prompt: `Show ${d.transactionId}, the stored ${d.date}, and a display column named date_shown that says 'not recorded' when the date is NULL. Do not change the stored data.`,
+      starterSql: `-- Question 27: Display a value for NULL without changing the database\n\n`,
+      solutionSql: `SELECT ${d.transactionId},\n       ${d.date},\n       COALESCE(${d.date}, 'not recorded') AS date_shown\nFROM ${d.transactionTable};`,
+    },
+
+    {
+      id: "q28",
+      title: "Real Challenge Question 1",
+      topic: "CHALLENGE · TOP-N REPORT",
+      prompt: `Find the three largest ${d.transactionTable} rows whose ${d.status} is '${d.statusA}' or '${d.statusB}'. Return ${d.transactionId}, ${d.status}, and ${d.amount}, with the largest ${d.amountLabel} first.`,
+      starterSql: `-- Real Challenge Question 1\n-- Combine IN, ORDER BY DESC, and LIMIT\n\n`,
+      solutionSql: `SELECT ${d.transactionId}, ${d.status}, ${d.amount}\nFROM ${d.transactionTable}\nWHERE ${d.status} IN ('${d.statusA}', '${d.statusB}')\nORDER BY ${d.amount} DESC\nLIMIT 3;`,
+    },
+
+    {
+      id: "q29",
+      title: "Real Challenge Question 2",
+      topic: "CHALLENGE · NULL LOGIC",
+      prompt: `First find rows in ${d.transactionTable} with ${d.date} before '${d.boundaryDate}'. Then find rows on or after that date. The two groups do not account for all 25 rows. Write a third query that finds the unaccounted rows.`,
+      starterSql: `-- Real Challenge Question 2\n-- Where did the missing rows go?\n\n-- Before the boundary date\n\n\n-- On or after the boundary date\n\n\n-- The rows not counted by either comparison\n`,
+      solutionSql: `SELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} < '${d.boundaryDate}';\n\nSELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} >= '${d.boundaryDate}';\n\nSELECT *\nFROM ${d.transactionTable}\nWHERE ${d.date} IS NULL;`,
+    },
+
+    {
+      id: "q30",
+      title: "Real Challenge Question 3",
+      topic: "CHALLENGE · DEBUGGING",
+      prompt: `The query below is intended to find ${d.locationLabel} 2 or 3 records that are still waiting for a date, with the busiest/largest rows first. It runs but gives the wrong result. Repair all three logical mistakes.`,
+      starterSql: `-- Real Challenge Question 3\n-- Find and repair all three logical mistakes\n\nSELECT ${d.transactionId}, ${d.locationId}, ${d.amount}\nFROM ${d.transactionTable}\nWHERE ${d.locationId} = 2 OR ${d.locationId} = 3\n  AND ${d.date} = NULL\nORDER BY ${d.amount};\n`,
+      solutionSql: `SELECT ${d.transactionId}, ${d.locationId}, ${d.amount}\nFROM ${d.transactionTable}\nWHERE ${d.locationId} IN (2, 3)\n  AND ${d.date} IS NULL\nORDER BY ${d.amount} DESC;`,
+    },
+  ];
+}

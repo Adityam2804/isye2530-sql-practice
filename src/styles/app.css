@@ -1136,3 +1136,10 @@ footer {
     width: 100%;
   }
 }
+
+/* Day 11 stretch questions */
+.question-topic.challenge {
+  color: #7a4a00;
+  background: #fff0cf;
+  border: 1px solid #f1c56e;
+}

@@ -4,7 +4,12 @@ Browser-based SQL practice for live classroom exercises. SQLite runs in the stud
 
 ## Current behavior
 
-The current release contains **Day 10 — Creating & Populating Tables** for:
+The current release contains both:
+
+- **Day 10 — Creating & Populating Tables** (Questions 1–15)
+- **Day 11 — Filtering and NULL Logic** (Questions 16–30)
+
+for:
 
 - Supply Chain
 - Healthcare
@@ -19,15 +24,14 @@ src/
 ├── data/
 │   ├── courseDays.js             # current day + registered course days
 │   ├── databases/
-│   │   └── day10/                # canonical DB setup for Day 10
-│   │       ├── humanitarian.js
-│   │       ├── healthcare.js
-│   │       ├── supplyChain.js
-│   │       └── index.js
+│   │   ├── day10/                # canonical DB setup for Day 10
+│   │   └── day11/                # canonical DB setup for Day 11
 │   ├── questions/
-│   │   └── day10.js
+│   │   ├── day10.js
+│   │   └── day11.js
 │   └── syntax/
-│       └── day10.js
+│       ├── day10.js
+│       └── day11.js
 ├── db/
 │   └── databaseService.js        # SQLite load/save/reset/run logic
 ├── storage/
@@ -110,40 +114,13 @@ db:day10:humanitarian:v2
 
 Because that key does not exist yet, it automatically builds the new canonical database. No student has to clear browser storage manually.
 
-## Adding Day 11
+## Day 11 implementation
 
-Recommended workflow:
+Day 11 is registered in `src/data/courseDays.js` and is the current default day. It uses its own canonical database namespace and includes Questions 16–30 plus a Day 11-specific Syntax Guide.
 
-1. Add Day 11 canonical database files:
+The Day 11 databases intentionally start from a clean canonical snapshot, even if a student changed or dropped tables during Day 10. Students can switch back to Day 10 without losing their Day 10 code or database state.
 
-```text
-src/data/databases/day11/
-├── humanitarian.js
-├── healthcare.js
-├── supplyChain.js
-└── index.js
-```
-
-2. Add:
-
-```text
-src/data/questions/day11.js
-src/data/syntax/day11.js
-```
-
-3. Register Day 11 in `src/data/courseDays.js` with its own `databaseVersion`.
-
-4. Add `day11` to `dayOrder`.
-
-5. Set:
-
-```js
-export const CURRENT_DAY_KEY = "day11";
-```
-
-On the next page load, students land on Day 11 automatically. Their Day 10 code and Day 10 database remain stored separately.
-
-If more than one day is registered, the UI automatically shows day navigation so students can revisit older work.
+To release a future day, repeat the same pattern with a new database folder, questions file, syntax file, and `courseDays.js` registration.
 
 ## Reset Database
 
@@ -185,7 +162,7 @@ npm run build
 You can deploy as a Render Blueprint, or as a Static Site with:
 
 ```text
-Build Command: npm ci && npm run build
+Build Command: npm install && npm run build
 Publish Directory: dist
 ```
 

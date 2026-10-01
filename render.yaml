@@ -2,7 +2,7 @@ services:
   - type: web
     runtime: static
     name: ise2530-sql-practice
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
       - type: rewrite
