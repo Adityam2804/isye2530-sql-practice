@@ -1,12 +1,15 @@
 import { day10Databases, day10DatabaseOrder } from "./databases/day10/index.js";
 import { day11Databases, day11DatabaseOrder } from "./databases/day11/index.js";
+import { day12Databases, day12DatabaseOrder } from "./databases/day12/index.js";
 import { buildDay10Questions } from "./questions/day10.js";
 import { buildDay11Questions } from "./questions/day11.js";
+import { buildDay12Questions } from "./questions/day12.js";
 import { day10Syntax } from "./syntax/day10.js";
 import { day11Syntax } from "./syntax/day11.js";
+import { day12Syntax } from "./syntax/day12.js";
 
 // Change this when the next class is released. Older days remain available.
-export const CURRENT_DAY_KEY = "day11";
+export const CURRENT_DAY_KEY = "day12";
 
 export const courseDays = {
   day10: {
@@ -30,6 +33,17 @@ export const courseDays = {
     buildQuestions: buildDay11Questions,
     syntaxGuide: day11Syntax,
   },
+
+  day12: {
+    key: "day12",
+    label: "Day 12",
+    title: "Joining Tables",
+    databaseVersion: 1,
+    databases: day12Databases,
+    databaseOrder: day12DatabaseOrder,
+    buildQuestions: buildDay12Questions,
+    syntaxGuide: day12Syntax,
+  },
 };
 
-export const dayOrder = ["day10", "day11"];
+export const dayOrder = ["day10", "day11", "day12"];
