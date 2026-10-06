@@ -1,7 +1,8 @@
 export const healthcareDatabase = {
   key: "healthcare",
   label: "Healthcare",
-  description: "Facilities, regions, services, and patient visits for join practice.",
+  description:
+    "Facilities, regions, services, and patient visits for join practice.",
   setupSql: `
     PRAGMA foreign_keys = ON;
 
@@ -36,7 +37,7 @@ export const healthcareDatabase = {
     INSERT INTO Regions VALUES
       ('North', 'Schuyler'),
       ('South', 'Bradford'),
-      ('East', 'Ten Eyck');
+      ('East', 'Watson');
 
     INSERT INTO Facilities (facility_id, name, region, capacity, referral_facility_id) VALUES
       (1, 'Riverside Clinic', 'North', 120, NULL),
