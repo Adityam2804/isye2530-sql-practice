@@ -38,7 +38,7 @@ export const courseDays = {
     key: "day12",
     label: "Day 12",
     title: "Joining Tables",
-    databaseVersion: 1,
+    databaseVersion: 2,
     databases: day12Databases,
     databaseOrder: day12DatabaseOrder,
     buildQuestions: buildDay12Questions,
