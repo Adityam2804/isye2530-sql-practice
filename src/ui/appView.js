@@ -80,6 +80,67 @@ function renderResults(results) {
     .join("");
 }
 
+function renderQuestionTablePreviews(tablePreviews = []) {
+  return `
+    <details class="question-tables">
+      <summary>Show Tables for this question</summary>
+
+      <div class="question-table-grid">
+        ${
+          tablePreviews.length
+            ? tablePreviews
+                .map(
+                  (preview) => `
+            <section class="question-table-card">
+              <div class="question-table-title">
+                <strong>${esc(preview.name)}</strong>
+                <span>${preview.values.length} row${preview.values.length === 1 ? "" : "s"} shown</span>
+              </div>
+
+              <div class="question-table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      ${preview.columns.map((column) => `<th>${esc(column)}</th>`).join("")}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${
+                      preview.values.length
+                        ? preview.values
+                            .map(
+                              (row) => `
+                        <tr>
+                          ${row
+                            .map(
+                              (value) =>
+                                `<td>${value === null ? "<em>NULL</em>" : esc(value)}</td>`,
+                            )
+                            .join("")}
+                        </tr>
+                      `,
+                            )
+                            .join("")
+                        : `<tr><td colspan="${Math.max(1, preview.columns.length)}">0 rows</td></tr>`
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          `,
+                )
+                .join("")
+            : `
+              <div class="question-table-empty">
+                No existing database table needs to be previewed for this question yet.
+              </div>
+            `
+        }
+      </div>
+    </details>
+  `;
+}
+
 function renderDatabasePanel(tables, columnsByTable, activeTable) {
   return `
     <div class="db-summary">
@@ -149,6 +210,7 @@ export function renderApp(root, model) {
     previewLabel,
     syntaxOpen,
     syntaxGuide,
+    questionTablePreviews = [],
   } = model;
 
   const q = questions[questionIndex];
@@ -223,6 +285,8 @@ export function renderApp(root, model) {
         <div class="question-content">
           <div class="question-topic${topicClass}">${esc(q.topic)}</div>
           ${renderQuestionBody(q)}
+
+          ${renderQuestionTablePreviews(questionTablePreviews)}
 
        <details class="hint">
   <summary>Show Solution</summary>

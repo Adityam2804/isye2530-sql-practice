@@ -101,6 +101,37 @@ function currentAnswer() {
   return getAnswer(state.dayKey, state.domainKey, q.id, q.starterSql);
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function requiredTablesForQuestion(question, tables) {
+  const source = [
+    question.title,
+    question.prompt,
+    question.starterSql,
+    question.solutionSql,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return tables.filter((table) =>
+    new RegExp(`\\b${escapeRegExp(table)}\\b`, "i").test(source),
+  );
+}
+
+function questionTablePreviews(db, question, tables) {
+  return requiredTablesForQuestion(question, tables).map((table) => {
+    const result = previewTable(db, table)[0];
+
+    return {
+      name: table,
+      columns: result?.columns ?? [],
+      values: result?.values ?? [],
+    };
+  });
+}
+
 function snapshot() {
   normalizeQuestionIndex();
 
@@ -110,6 +141,9 @@ function snapshot() {
   const columnsByTable = Object.fromEntries(
     tables.map((table) => [table, getColumns(db, table)]),
   );
+  const qList = questions();
+  const currentQuestion = qList[state.questionIndex];
+  const tablePreviews = questionTablePreviews(db, currentQuestion, tables);
 
   return {
     dayKey: state.dayKey,
@@ -125,8 +159,9 @@ function snapshot() {
     databases: day.databases,
     databaseOrder: day.databaseOrder,
     questionIndex: state.questionIndex,
-    questions: questions(),
+    questions: qList,
     answer: currentAnswer(),
+    questionTablePreviews: tablePreviews,
     tables,
     columnsByTable,
     status: state.status,

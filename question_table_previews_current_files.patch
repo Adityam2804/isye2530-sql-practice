@@ -1,0 +1,296 @@
+--- a/src/ui/appView.js
++++ b/src/ui/appView.js
+@@ -80,6 +80,67 @@
+     .join("");
+ }
+ 
++function renderQuestionTablePreviews(tablePreviews = []) {
++  return `
++    <details class="question-tables">
++      <summary>Show Tables for this question</summary>
++
++      <div class="question-table-grid">
++        ${
++          tablePreviews.length
++            ? tablePreviews
++                .map(
++                  (preview) => `
++            <section class="question-table-card">
++              <div class="question-table-title">
++                <strong>${esc(preview.name)}</strong>
++                <span>${preview.values.length} row${preview.values.length === 1 ? "" : "s"} shown</span>
++              </div>
++
++              <div class="question-table-scroll">
++                <table>
++                  <thead>
++                    <tr>
++                      ${preview.columns.map((column) => `<th>${esc(column)}</th>`).join("")}
++                    </tr>
++                  </thead>
++                  <tbody>
++                    ${
++                      preview.values.length
++                        ? preview.values
++                            .map(
++                              (row) => `
++                        <tr>
++                          ${row
++                            .map(
++                              (value) =>
++                                `<td>${value === null ? "<em>NULL</em>" : esc(value)}</td>`,
++                            )
++                            .join("")}
++                        </tr>
++                      `,
++                            )
++                            .join("")
++                        : `<tr><td colspan="${Math.max(1, preview.columns.length)}">0 rows</td></tr>`
++                    }
++                  </tbody>
++                </table>
++              </div>
++            </section>
++          `,
++                )
++                .join("")
++            : `
++              <div class="question-table-empty">
++                No existing database table needs to be previewed for this question yet.
++              </div>
++            `
++        }
++      </div>
++    </details>
++  `;
++}
++
+ function renderDatabasePanel(tables, columnsByTable, activeTable) {
+   return `
+     <div class="db-summary">
+@@ -149,6 +210,7 @@
+     previewLabel,
+     syntaxOpen,
+     syntaxGuide,
++    questionTablePreviews = [],
+   } = model;
+ 
+   const q = questions[questionIndex];
+@@ -224,6 +286,8 @@
+           <div class="question-topic${topicClass}">${esc(q.topic)}</div>
+           ${renderQuestionBody(q)}
+ 
++          ${renderQuestionTablePreviews(questionTablePreviews)}
++
+        <details class="hint">
+   <summary>Show Solution</summary>
+ 
+--- a/src/main.js
++++ b/src/main.js
+@@ -101,6 +101,37 @@
+   return getAnswer(state.dayKey, state.domainKey, q.id, q.starterSql);
+ }
+ 
++function escapeRegExp(value) {
++  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++}
++
++function requiredTablesForQuestion(question, tables) {
++  const source = [
++    question.title,
++    question.prompt,
++    question.starterSql,
++    question.solutionSql,
++  ]
++    .filter(Boolean)
++    .join("\n");
++
++  return tables.filter((table) =>
++    new RegExp(`\\b${escapeRegExp(table)}\\b`, "i").test(source),
++  );
++}
++
++function questionTablePreviews(db, question, tables) {
++  return requiredTablesForQuestion(question, tables).map((table) => {
++    const result = previewTable(db, table)[0];
++
++    return {
++      name: table,
++      columns: result?.columns ?? [],
++      values: result?.values ?? [],
++    };
++  });
++}
++
+ function snapshot() {
+   normalizeQuestionIndex();
+ 
+@@ -110,6 +141,9 @@
+   const columnsByTable = Object.fromEntries(
+     tables.map((table) => [table, getColumns(db, table)]),
+   );
++  const qList = questions();
++  const currentQuestion = qList[state.questionIndex];
++  const tablePreviews = questionTablePreviews(db, currentQuestion, tables);
+ 
+   return {
+     dayKey: state.dayKey,
+@@ -125,8 +159,9 @@
+     databases: day.databases,
+     databaseOrder: day.databaseOrder,
+     questionIndex: state.questionIndex,
+-    questions: questions(),
++    questions: qList,
+     answer: currentAnswer(),
++    questionTablePreviews: tablePreviews,
+     tables,
+     columnsByTable,
+     status: state.status,
+--- a/src/styles/app.css
++++ b/src/styles/app.css
+@@ -1143,3 +1143,145 @@
+   background: #fff0cf;
+   border: 1px solid #f1c56e;
+ }
++
++/* =========================
++   Per-question table previews
++   ========================= */
++
++.question-tables {
++  display: block;
++  width: 100%;
++  margin: 17px 0 2px;
++  border: 1px solid #d9e2ec;
++  background: #f8fafc;
++  border-radius: 9px;
++  overflow: hidden;
++}
++
++.question-tables summary {
++  padding: 10px 12px;
++  cursor: pointer;
++  font-weight: 780;
++  color: #334155;
++  list-style-position: inside;
++}
++
++.question-tables[open] summary {
++  border-bottom: 1px solid #d9e2ec;
++}
++
++.question-table-grid {
++  display: grid;
++  grid-template-columns: repeat(3, minmax(0, 1fr));
++  gap: 12px;
++  padding: 12px;
++  align-items: start;
++}
++
++.question-table-card {
++  min-width: 0;
++  border: 1px solid #dfe5ec;
++  border-radius: 9px;
++  background: #ffffff;
++  overflow: hidden;
++}
++
++.question-table-title {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 10px;
++  padding: 9px 10px;
++  border-bottom: 1px solid #e5e9ef;
++  background: #f8fafc;
++}
++
++.question-table-title strong {
++  font-size: 13px;
++  color: #1f2937;
++}
++
++.question-table-title span {
++  flex: 0 0 auto;
++  font-size: 10px;
++  color: #64748b;
++}
++
++.question-table-scroll {
++  width: 100%;
++  max-height: 280px;
++  overflow: auto;
++  scrollbar-width: thin;
++  scrollbar-color: #aab2bd transparent;
++}
++
++.question-table-scroll table {
++  width: max-content;
++  min-width: 100%;
++  border-collapse: collapse;
++  font-size: 11px;
++}
++
++.question-table-scroll th,
++.question-table-scroll td {
++  padding: 7px 8px;
++  border-bottom: 1px solid #edf0f3;
++  border-right: 1px solid #edf0f3;
++  text-align: left;
++  white-space: nowrap;
++}
++
++.question-table-scroll th {
++  position: sticky;
++  top: 0;
++  z-index: 1;
++  background: #eef2f6;
++  color: #334155;
++  font-weight: 800;
++}
++
++.question-table-scroll td {
++  color: #475569;
++}
++
++.question-table-scroll em {
++  color: #8b5e00;
++  font-style: italic;
++}
++
++.question-table-empty {
++  grid-column: 1 / -1;
++  padding: 12px;
++  border: 1px dashed #cbd5e1;
++  border-radius: 8px;
++  color: #64748b;
++  background: #ffffff;
++  font-size: 12px;
++}
++
++.question-table-scroll::-webkit-scrollbar {
++  width: 8px;
++  height: 8px;
++}
++
++.question-table-scroll::-webkit-scrollbar-thumb {
++  background: #aab2bd;
++  border-radius: 999px;
++}
++
++@media (max-width: 1100px) {
++  .question-table-grid {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++}
++
++@media (max-width: 700px) {
++  .question-table-grid {
++    grid-template-columns: 1fr;
++  }
++
++  .question-table-scroll {
++    max-height: 240px;
++  }
++}
++
