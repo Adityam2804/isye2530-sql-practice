@@ -2,17 +2,20 @@ import { day10Databases, day10DatabaseOrder } from "./databases/day10/index.js";
 import { day11Databases, day11DatabaseOrder } from "./databases/day11/index.js";
 import { day12Databases, day12DatabaseOrder } from "./databases/day12/index.js";
 import { day13Databases, day13DatabaseOrder } from "./databases/day13/index.js";
+import { day14Databases, day14DatabaseOrder } from "./databases/day14/index.js";
 import { buildDay10Questions } from "./questions/day10.js";
 import { buildDay11Questions } from "./questions/day11.js";
 import { buildDay12Questions } from "./questions/day12.js";
 import { buildDay13Questions } from "./questions/day13.js";
+import { buildDay14Questions } from "./questions/day14.js";
 import { day10Syntax } from "./syntax/day10.js";
 import { day11Syntax } from "./syntax/day11.js";
 import { day12Syntax } from "./syntax/day12.js";
 import { day13Syntax } from "./syntax/day13.js";
+import { day14Syntax } from "./syntax/day14.js";
 
 // Change this when the next class is released. Older days remain available.
-export const CURRENT_DAY_KEY = "day13";
+export const CURRENT_DAY_KEY = "day14";
 
 export const courseDays = {
   day10: {
@@ -58,6 +61,17 @@ export const courseDays = {
     buildQuestions: buildDay13Questions,
     syntaxGuide: day13Syntax,
   },
+
+  day14: {
+    key: "day14",
+    label: "Day 14",
+    title: "Aggregation and Views",
+    databaseVersion: 1,
+    databases: day14Databases,
+    databaseOrder: day14DatabaseOrder,
+    buildQuestions: buildDay14Questions,
+    syntaxGuide: day14Syntax,
+  },
 };
 
-export const dayOrder = ["day10", "day11", "day12", "day13"];
+export const dayOrder = ["day10", "day11", "day12", "day13", "day14"];
