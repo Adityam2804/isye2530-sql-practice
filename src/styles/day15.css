@@ -1,0 +1,16 @@
+.day15-lab .python-work-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+.day15-lab #pythonEditor, .day15-lab #sqlComparison { box-sizing: border-box; width: 100%; font: 14px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; tab-size: 4; padding: 18px; resize: vertical; background: #111c2c; color: #edf3fc; border: 0; border-radius: 8px; }
+.day15-lab #pythonEditor { min-height: 450px; }
+.day15-lab #sqlComparison { min-height: 100px; margin: 12px 0; }
+.python-output { margin: 0; min-height: 350px; max-height: 650px; padding: 20px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.python-prediction { padding: 12px 16px; background: #edf5fa; border-left: 3px solid #235d86; }
+.python-snippets, .python-actions { padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+.python-actions p { flex-basis: 100%; margin: 0; }
+.python-comparison { padding: 20px; }
+.python-csv { max-height: 300px; overflow: auto; font-size: 12px; white-space: pre; }
+.python-note { line-height: 1.65; color: #52647a; }
+.day15-lab #pythonTables td code { white-space: pre; }
+.day15-lab .editor-footer { gap: 8px; flex-wrap: wrap; }
+.day15-lab .shortcut { white-space: normal; text-align: right; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 900px) { .day15-lab .python-work-grid { grid-template-columns: minmax(0, 1fr); } }

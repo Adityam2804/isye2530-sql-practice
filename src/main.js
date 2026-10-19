@@ -17,7 +17,10 @@ import {
 } from "./storage/browserStorage.js";
 import { renderApp } from "./ui/appView.js";
 
+import { mountDay15Lab } from "./ui/day15Lab.js";
+
 const root = document.querySelector("#app");
+let unmountLab = null;
 
 await initDatabaseEngine();
 
@@ -175,6 +178,13 @@ function snapshot() {
 }
 
 function render() {
+  unmountLab?.();
+  unmountLab = null;
+  if (dayConfig().mode === "python") {
+    document.body.classList.remove("modal-open");
+    unmountLab = mountDay15Lab(root, dayOrder.map(key => ({ key, label: courseDays[key].label })), switchDay);
+    return;
+  }
   document.body.classList.toggle("modal-open", state.syntaxOpen);
   renderApp(root, snapshot());
   wire();
@@ -200,7 +210,7 @@ function switchDay(nextDayKey) {
   state.dayKey = nextDayKey;
   state.domainKey = nextDomain;
   state.questionIndex = savedQuestionIndex(nextDayKey, nextDomain);
-  getDb(nextDayKey, nextDomain);
+  if (nextDay.mode !== "python") getDb(nextDayKey, nextDomain);
   state.results = [];
   state.status = `${nextDay.label} · ${nextDay.title} loaded.`;
   state.statusType = "neutral";

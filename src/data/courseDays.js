@@ -15,9 +15,18 @@ import { day13Syntax } from "./syntax/day13.js";
 import { day14Syntax } from "./syntax/day14.js";
 
 // Change this when the next class is released. Older days remain available.
-export const CURRENT_DAY_KEY = "day14";
+export const CURRENT_DAY_KEY = "day15";
 
 export const courseDays = {
+  day15: {
+    key: "day15",
+    label: "Day 15",
+    title: "Working with the Database from Code",
+    mode: "python",
+    databaseVersion: 1,
+    databases: day12Databases,
+    databaseOrder: ["humanitarian"],
+  },
   day10: {
     key: "day10",
     label: "Day 10",
@@ -74,4 +83,4 @@ export const courseDays = {
   },
 };
 
-export const dayOrder = ["day10", "day11", "day12", "day13", "day14"];
+export const dayOrder = ["day10", "day11", "day12", "day13", "day14", "day15"];
