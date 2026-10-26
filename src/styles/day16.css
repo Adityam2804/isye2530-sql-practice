@@ -1,0 +1,187 @@
+.day16-lab .day16-work-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.day16-lab #day16Editor {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 480px;
+  padding: 18px;
+  resize: vertical;
+  border: 0;
+  border-radius: 8px;
+  background: #111c2c;
+  color: #edf3fc;
+  font: 14px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace;
+  tab-size: 4;
+}
+
+.day16-lab .editor-footer {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.day16-lab .shortcut {
+  white-space: normal;
+  text-align: right;
+}
+
+.day16-table-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.day16-table-card {
+  min-width: 0;
+  border: 1px solid #dce2e8;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.day16-table-card h3 {
+  margin: 0;
+  padding: 9px 10px;
+  background: #f5f7f9;
+  border-bottom: 1px solid #dce2e8;
+  font-size: 12px;
+}
+
+.day16-table-scroll {
+  max-height: 275px;
+  overflow: auto;
+}
+
+.day16-table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.day16-table-scroll th,
+.day16-table-scroll td {
+  padding: 7px 8px;
+  border-right: 1px solid #edf0f3;
+  border-bottom: 1px solid #edf0f3;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.day16-table-scroll th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #eef2f6;
+  color: #334155;
+  font-weight: 800;
+}
+
+.day16-table-scroll em {
+  color: #8b5e00;
+}
+
+.day16-empty,
+.day16-chart-placeholder {
+  margin: 0;
+  padding: 18px;
+  color: #64748b;
+}
+
+.day16-chart-card {
+  margin-top: 20px;
+}
+
+.day16-charts {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.day16-figure {
+  margin: 0;
+  text-align: center;
+}
+
+.day16-figure img {
+  display: block;
+  max-width: 100%;
+  max-height: 620px;
+  margin: 0 auto;
+  object-fit: contain;
+  border: 1px solid #e3e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.day16-interpretation {
+  margin-top: 20px;
+  padding: 18px;
+}
+
+.day16-interpretation p {
+  color: #52647a;
+}
+
+.day16-interpretation textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+@media (max-width: 1100px) {
+  .day16-table-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .day16-lab .day16-work-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .day16-table-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .day16-table-scroll {
+    max-height: 240px;
+  }
+}
+
+.day16-solution-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+
+.day16-solution-preview {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #dce2e8;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.day16-solution-preview h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.day16-solution-preview .python-output {
+  margin-bottom: 14px;
+  max-height: 360px;
+}
+
+.day16-solution-preview .day16-charts {
+  padding: 8px 0 0;
+}

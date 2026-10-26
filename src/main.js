@@ -18,6 +18,7 @@ import {
 import { renderApp } from "./ui/appView.js";
 
 import { mountDay15Lab } from "./ui/day15Lab.js";
+import { mountDay16Lab } from "./ui/day16Lab.js";
 
 const root = document.querySelector("#app");
 let unmountLab = null;
@@ -182,7 +183,10 @@ function render() {
   unmountLab = null;
   if (dayConfig().mode === "python") {
     document.body.classList.remove("modal-open");
-    unmountLab = mountDay15Lab(root, dayOrder.map(key => ({ key, label: courseDays[key].label })), switchDay);
+    const mountPythonLab = state.dayKey === "day16"
+      ? mountDay16Lab
+      : mountDay15Lab;
+    unmountLab = mountPythonLab(root, dayOrder.map(key => ({ key, label: courseDays[key].label })), switchDay);
     return;
   }
   document.body.classList.toggle("modal-open", state.syntaxOpen);
