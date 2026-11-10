@@ -19,6 +19,7 @@ import { renderApp } from "./ui/appView.js";
 
 import { mountDay15Lab } from "./ui/day15Lab.js";
 import { mountDay16Lab } from "./ui/day16Lab.js";
+import { mountDay20Lab } from "./ui/day20Lab.js";
 
 const root = document.querySelector("#app");
 let unmountLab = null;
@@ -181,12 +182,19 @@ function snapshot() {
 function render() {
   unmountLab?.();
   unmountLab = null;
-  if (dayConfig().mode === "python") {
+  if (dayConfig().mode === "python" || dayConfig().mode === "decision") {
     document.body.classList.remove("modal-open");
-    const mountPythonLab = state.dayKey === "day16"
-      ? mountDay16Lab
-      : mountDay15Lab;
-    unmountLab = mountPythonLab(root, dayOrder.map(key => ({ key, label: courseDays[key].label })), switchDay);
+    const labMounts = {
+      day15: mountDay15Lab,
+      day16: mountDay16Lab,
+      day20: mountDay20Lab,
+    };
+    const mountLab = labMounts[state.dayKey];
+    unmountLab = mountLab(
+      root,
+      dayOrder.map((key) => ({ key, label: courseDays[key].label })),
+      switchDay,
+    );
     return;
   }
   document.body.classList.toggle("modal-open", state.syntaxOpen);
@@ -214,7 +222,9 @@ function switchDay(nextDayKey) {
   state.dayKey = nextDayKey;
   state.domainKey = nextDomain;
   state.questionIndex = savedQuestionIndex(nextDayKey, nextDomain);
-  if (nextDay.mode !== "python") getDb(nextDayKey, nextDomain);
+  if (nextDay.mode !== "python" && nextDay.mode !== "decision") {
+    getDb(nextDayKey, nextDomain);
+  }
   state.results = [];
   state.status = `${nextDay.label} · ${nextDay.title} loaded.`;
   state.statusType = "neutral";
