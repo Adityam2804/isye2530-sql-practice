@@ -5,6 +5,7 @@ import {
   truckStages,
 } from "../data/day20.js";
 import { getSetting, setSetting } from "../storage/browserStorage.js";
+import { handlePythonIndentation } from "./pythonEditorKeys.js";
 import "../styles/day20.css";
 
 const esc = (value) =>
@@ -43,16 +44,16 @@ function lectureCode(stageId) {
 
 function activeLine(code, fragment) {
   return code
-    .split("\\n")
+    .split("\n")
     .some((line) => !line.trimStart().startsWith("#") && line.includes(fragment));
 }
 
 function extractLimit(code, fragment, fallback) {
   const line = code
-    .split("\\n")
+    .split("\n")
     .find((item) => !item.trimStart().startsWith("#") && item.includes(fragment));
   if (!line) return null;
-  const match = line.match(/<=\\s*([0-9]+(?:\\.[0-9]+)?)/);
+  const match = line.match(/<=\s*([0-9]+(?:\.[0-9]+)?)/);
   return match ? Number(match[1]) : fallback;
 }
 
@@ -94,18 +95,67 @@ function parseLectureCode(code) {
   };
 }
 
+function handlePythonCommentToggle(event, editor) {
+  const slashKey = event.key === "/" || event.code === "Slash";
+  if (event.isComposing || !(event.ctrlKey || event.metaKey) || event.altKey || !slashKey) {
+    return false;
+  }
+
+  event.preventDefault();
+
+  const text = editor.value;
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const lineStart = start === 0 ? 0 : text.lastIndexOf("\n", start - 1) + 1;
+  const effectiveEnd = end > start && text[end - 1] === "\n" ? end - 1 : end;
+  const nextNewline = text.indexOf("\n", effectiveEnd);
+  const blockEnd = nextNewline === -1 ? text.length : nextNewline;
+  const lines = text.slice(lineStart, blockEnd).split("\n");
+  const nonBlank = lines.filter((line) => line.trim().length > 0);
+  const shouldUncomment =
+    nonBlank.length > 0 && nonBlank.every((line) => /^\s*#/.test(line));
+
+  const updatedLines = lines.map((line) => {
+    if (!line.trim()) return line;
+    return shouldUncomment
+      ? line.replace(/^(\s*)# ?/, "$1")
+      : line.replace(/^(\s*)/, "$1# ");
+  });
+
+  const updated = updatedLines.join("\n");
+  editor.setRangeText(updated, lineStart, blockEnd, "select");
+
+  if (start === end) {
+    const oldLine = lines[0] ?? "";
+    const newLine = updatedLines[0] ?? "";
+    const indent = (oldLine.match(/^\s*/) ?? [""])[0].length;
+    const markerLength = (oldLine.slice(indent).match(/^# ?/) ?? [""])[0].length;
+    let caret = start;
+
+    if (shouldUncomment && caret > lineStart + indent) {
+      caret = Math.max(lineStart + indent, caret - markerLength);
+    } else if (!shouldUncomment && caret >= lineStart + indent) {
+      caret += newLine.length - oldLine.length;
+    }
+
+    editor.setSelectionRange(caret, caret);
+  }
+
+  return true;
+}
+
 function pythonList(items) {
   return `[${items.map((item) => `'${item.name}'`).join(", ")}]`;
 }
 
 function updateConstraintLimit(code, fragment, value) {
   return code
-    .split("\\n")
+    .split("\n")
     .map((line) => {
       if (!line.includes(fragment)) return line;
-      return line.replace(/<=\\s*[0-9]+(?:\\.[0-9]+)?/, `<= ${value}`);
+      return line.replace(/<=\s*[0-9]+(?:\.[0-9]+)?/, `<= ${value}`);
     })
-    .join("\\n");
+    .join("\n");
 }
 
 function solveTruck({ weight, volume, useVolume, requireNeed }) {
@@ -376,10 +426,10 @@ export function mountDay20Lab(root, dayOptions, onDay) {
 
           <div class="day20-live-grid">
             <div class="day20-editor-wrap">
-              <textarea id="day20Editor" spellcheck="false" aria-label="Editable truck.py code">${esc(codeText)}</textarea>
+              <textarea id="day20Editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Editable truck.py code">${esc(codeText)}</textarea>
               <p class="day20-editor-note">
-                Classroom runner: supports the lecture edits to the weight limit, the three volume lines,
-                the volume limit, and the shelter/food constraint.
+                <strong>Shortcuts:</strong> Ctrl+/ comment/uncomment · Tab indent · Shift+Tab outdent.
+                Select multiple lines to apply the shortcut to the whole selection.
               </p>
             </div>
 
@@ -560,7 +610,20 @@ export function mountDay20Lab(root, dayOptions, onDay) {
       render();
     };
 
-    root.querySelector("#day20Editor").oninput = (event) => {
+    const day20Editor = root.querySelector("#day20Editor");
+
+    day20Editor.onkeydown = (event) => {
+      const handled =
+        handlePythonCommentToggle(event, day20Editor) ||
+        handlePythonIndentation(event, day20Editor);
+
+      if (handled) {
+        codeText = day20Editor.value;
+        setSetting("day20:code", codeText);
+      }
+    };
+
+    day20Editor.oninput = (event) => {
       codeText = event.target.value;
       setSetting("day20:code", codeText);
     };
