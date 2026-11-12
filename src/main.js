@@ -20,6 +20,7 @@ import { renderApp } from "./ui/appView.js";
 import { mountDay15Lab } from "./ui/day15Lab.js";
 import { mountDay16Lab } from "./ui/day16Lab.js";
 import { mountDay20Lab } from "./ui/day20Lab.js";
+import { mountDay21Lab } from "./ui/day21Lab.js";
 
 const root = document.querySelector("#app");
 let unmountLab = null;
@@ -188,6 +189,7 @@ function render() {
       day15: mountDay15Lab,
       day16: mountDay16Lab,
       day20: mountDay20Lab,
+      day21: mountDay21Lab,
     };
     const mountLab = labMounts[state.dayKey];
     unmountLab = mountLab(
